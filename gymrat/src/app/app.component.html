@@ -1,0 +1,31 @@
+<ion-app>
+  <ion-router-outlet></ion-router-outlet>
+
+  <ion-tabs>
+    <ion-tab-bar slot="bottom">
+      <ion-tab-button href="">
+        <ion-icon name="home"></ion-icon>
+        Dia
+      </ion-tab-button>
+      <ion-tab-button *ngIf="!checkLoginStatus()" href="login">
+        <ion-icon name="people"></ion-icon>
+         Acceder
+      </ion-tab-button>
+      <ion-tab-button *ngIf="checkLoginStatus()" (click)="logout()" >
+        <ion-icon  name="people"></ion-icon>
+        Salir
+      </ion-tab-button>
+
+      <ion-tab-button *ngIf="checkLoginStatus()"  href="entries"  >
+        <ion-icon  name="people"></ion-icon>
+        Ver Entradas
+      </ion-tab-button>
+
+      <ion-tab-button *ngIf="checkLoginStatus()" href="manage-users"  >
+        <ion-icon  name="people"></ion-icon>
+        Ver Usuarios
+      </ion-tab-button>
+
+    </ion-tab-bar>
+  </ion-tabs>
+</ion-app>

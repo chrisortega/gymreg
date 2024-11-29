@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Filter Data by Date</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-label>Filter by Date</ion-label>
+    <ion-datetime
+      [(ngModel)]="filterDate"
+      displayFormat="YYYY-MM-DD"
+      (ionChange)="filterData()"
+      presentation="date"
+      
+    ></ion-datetime>
+  </ion-item>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col><strong>ID</strong></ion-col>
+      <ion-col><strong>Day</strong></ion-col>
+      <ion-col><strong>User ID</strong></ion-col>
+      <ion-col><strong>Name</strong></ion-col>
+    </ion-row>
+    <ion-row *ngFor="let item of filteredData">
+
+      <ion-col>{{ item.day }}</ion-col>
+      <ion-col>{{ item.name }}</ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

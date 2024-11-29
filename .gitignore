@@ -1,0 +1,82 @@
+# Node.js
+gymrat/node_modules/
+gymrat/backend/node_modules/
+npm-debug.log
+yarn-error.log
+gymrat/package-lock.json
+yarn.lock
+
+# Ionic
+www/
+build/
+platforms/
+plugins/
+hooks/
+dist/
+coverage/
+ionic.*
+
+# Cordova
+platforms/
+plugins/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Linux
+*~ 
+*.swp
+
+# Log files
+*.log
+
+# Environment variables
+.env
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# npm package files
+package-lock.json
+yarn.lock
+
+# Android Studio
+.gradle/
+local.properties
+.idea/
+*.iml
+
+# Xcode
+*.xcuserstate
+*.xcworkspace
+DerivedData/
+build/
+
+# VS Code settings
+.settings/
+
+# Tye (for .NET projects)
+.tye/
+
+# Ionic specific
+*.sqlite
+*.db
+
+# Expo/React Native (if using)
+.expo/
+.expo-shared/
