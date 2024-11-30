@@ -66,6 +66,13 @@ export class GymService {
     return this.http.get(`${this.apiUrl}/users/${id}`,{headers});
   }
 
+    // save user
+    saveUser(user: { id: string; name: string; exp: string }): Observable<any> {
+      const headers = this.headers
+      return this.http.put(`${this.apiUrl}/users`, user, { headers });
+    }
+
+
   login(email:string, password:string): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, { email: email, password:password })
   }

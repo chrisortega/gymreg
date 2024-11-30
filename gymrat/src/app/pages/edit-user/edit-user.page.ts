@@ -31,6 +31,17 @@ export class EditUserPage implements OnInit {
   }
 
   async saveUser() {
-    this.router.navigate(['/manage-users']); // Navigate back to Manage Users page
+    this.gymService.saveUser(this.user).subscribe({
+      next: (response) => {
+        console.log('User saved successfully:', response);
+        //this.navCtrl.back(); // Navigate back after saving
+      },
+      error: (error) => {
+        console.error('Error saving user:', error);
+        alert('An error occurred while saving the user.');
+      },
+    });
+    
+   // this.router.navigate(['/manage-users']); // Navigate back to Manage Users page
   }
 }

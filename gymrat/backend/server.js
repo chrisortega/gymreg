@@ -94,6 +94,49 @@ app.post('/users', (req, res) => {
   });
 });
 
+app.put('/users', authenticateToken, (req, res)=>{
+  const { id, name, exp } = req.body;
+
+  if (!id || !name || !exp) {
+    return res.status(400).json({ error: 'All fields (id, name, exp) are required.' });
+  }
+  // Format the date to 'YYYY-MM-DD'
+  const formattedExp = new Date(exp).toISOString().split('T')[0];
+
+  // Check if the user already exists
+  const checkQuery = 'SELECT * FROM users WHERE id = ?';
+  db.query(checkQuery,  [id], (err, results) => {
+    if (err) {
+      console.error('Error checking user:', err);
+      return res.status(500).json({ error: 'Database error.' });
+    }
+
+    if (results.length > 0) {
+      // User exists, update the record
+      const updateQuery = 'UPDATE users SET name = ?, exp = ? WHERE id = ?';
+      db.query(updateQuery, [name, formattedExp, id], (updateErr) => {
+        if (updateErr) {
+          console.error('Error updating user:', updateErr);
+          return res.status(500).json({ error: 'Database error.' });
+        }
+        res.status(200).json({ message: 'User updated successfully.' });
+      });
+    } else {
+      /*
+      // User does not exist, insert a new record
+      const insertQuery = 'INSERT INTO users (id, name, exp) VALUES (?, ?, ?)';
+      db.query(insertQuery, [id, name, exp], (insertErr) => {
+        if (insertErr) {
+          console.error('Error adding user:', insertErr);
+          return res.status(500).json({ error: 'Database error.' });
+        }
+        res.status(201).json({ message: 'User added successfully.' });
+      });
+      */
+    }
+  });
+});
+
 // 3. Register a user entry
 app.post('/entries', authenticateToken , (req, res) => {
   const { user_id, gym_id } = req.body;
