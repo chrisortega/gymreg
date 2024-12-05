@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthService } from 'src/app/services/auth-service.service';
 import { GymService } from 'src/app/services/gym.service';
 
 @Component({
@@ -12,8 +13,11 @@ export class CheckSubscriptionsPage {
   userFound: boolean = false; // Flag to check if user is found
   checked: boolean = false; // Flag to indicate a check was performed
   entries: any[] = []
+  
 
-  constructor(private gymService:GymService) {}
+  constructor(private gymService:GymService, private auth:AuthService) {}
+
+  imageSrc: string | undefined;
 
   reloadEntries(){
     this.gymService.getEntriesFromToday().subscribe(entries=>{
@@ -22,9 +26,19 @@ export class CheckSubscriptionsPage {
   }
 
   ngOnInit(){
+
+    var data = this.auth.getGymData()
+
+    this.imageSrc = this.bufferToBase64(data['image']['data']);
+
     this.reloadEntries()
   }
 
+  bufferToBase64(buffer: ArrayBuffer): string {
+    const byteArray = new Uint8Array(buffer);
+    const base64String = btoa(String.fromCharCode.apply(null, Array.from(byteArray)));
+    return base64String;
+  }
    checkSubscription() {
     this.checked = true; // Indicate a check has been performed
 

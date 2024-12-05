@@ -1,25 +1,34 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Check Subscription</ion-title>
+    <ion-title>Ingresos de hoy </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="ion-padding login-page">
+  <div class="logo-container">
+
+    <div *ngIf="imageSrc; else noImage">
+      <img [src]="'data:image/jpeg;base64,' + imageSrc" class="logo" alt="Stored Image" />
+    </div>
+
+    <ng-template #noImage>
+      <p></p>
+    </ng-template>
+  </div>
+
   <!-- Input Section -->
   <ion-item>
-    <ion-label position="floating">Enter Membership ID</ion-label>
-    <ion-input [(ngModel)]="membershipId" placeholder="12345"  (keydown.enter)="checkSubscription()" onkeypress="ch"></ion-input>
+    <ion-input label-placement="floating" fill="solid" placeholder="Ingresa tu Membresia" [(ngModel)]="membershipId" placeholder="12345"  (keydown.enter)="checkSubscription()" onkeypress="ch"></ion-input>
   </ion-item>
-  <ion-button expand="block" (click)="checkSubscription()">Check</ion-button>
+  <ion-button           color="dark"
+  expand="block" (click)="checkSubscription()">Check</ion-button>
 
 
 
   <!-- Visible List of Checked Users -->
       <ion-list>
         <ion-item *ngFor="let entry of entries" >
-          <ion-thumbnail slot="start">
-            <img alt="Silhouette of mountains"  src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
-          </ion-thumbnail>
+
           <ion-label [color]="isExpired(entry.exp) ? 'danger' : 'primary'" >{{ entry.name }}</ion-label>
 
           <ion-label [color]="isExpired(entry.exp) ? 'danger' : 'primary'" >{{ entry.exp }}</ion-label>

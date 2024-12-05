@@ -3,9 +3,11 @@
 
   <ion-tabs>
     <ion-tab-bar slot="bottom">
+
+      
       <ion-tab-button href="">
         <ion-icon name="home"></ion-icon>
-        Dia
+        Ingresos
       </ion-tab-button>
       <ion-tab-button *ngIf="!checkLoginStatus()" href="login">
         <ion-icon name="people"></ion-icon>
@@ -15,7 +17,10 @@
         <ion-icon  name="people"></ion-icon>
         Salir
       </ion-tab-button>
-
+      <ion-tab-button *ngIf="!checkLoginStatus()"  href="gym-user-check"  >
+        <ion-icon  name="people"></ion-icon>
+        Mi Membresia
+      </ion-tab-button>
       <ion-tab-button *ngIf="checkLoginStatus()"  href="entries"  >
         <ion-icon  name="people"></ion-icon>
         Ver Entradas

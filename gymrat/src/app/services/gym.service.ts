@@ -29,6 +29,11 @@ export class GymService {
     return this.http.get(`${this.apiUrl}/gyms`);
   }
 
+  // Get all gyms
+  getGym(id:any): Observable<any> {
+    return this.http.get(`${this.apiUrl}/gym/${id}`);
+  }
+
   // Add a new gym
   addGym(gymName: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/gyms`, { gym_name: gymName });
@@ -46,7 +51,8 @@ export class GymService {
 
   // Get all entries
   getEntries(): Observable<DataItem[]> {
-    return this.http.get<DataItem[]>(`${this.apiUrl}/entries`);
+    const headers = this.headers
+    return this.http.get<DataItem[]>(`${this.apiUrl}/entries`,{headers});
   }
 
     // Get all entries from today
@@ -66,6 +72,11 @@ export class GymService {
     return this.http.get(`${this.apiUrl}/users/${id}`,{headers});
   }
 
+  getEntriesByUser(userId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/entries/${userId}`);
+  }
+
+
     // save user
     saveUser(user: { id: string; name: string; exp: string }): Observable<any> {
       const headers = this.headers
@@ -76,6 +87,7 @@ export class GymService {
   login(email:string, password:string): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, { email: email, password:password })
   }
+
 
   
 }

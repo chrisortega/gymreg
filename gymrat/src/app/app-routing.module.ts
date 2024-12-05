@@ -14,7 +14,8 @@ const routes: Routes = [
   },
   {
     path: 'check-subscriptions',
-    loadChildren: () => import('./pages/check-subscriptions/check-subscriptions.module').then( m => m.CheckSubscriptionsPageModule)
+    loadChildren: () => import('./pages/check-subscriptions/check-subscriptions.module').then( m => m.CheckSubscriptionsPageModule),
+    canActivate: [AuthGuard],
   },
   {
     path: 'manage-users',
@@ -28,14 +29,22 @@ const routes: Routes = [
   },
 
   
-  { path: 'edit-user/:id', loadChildren: () => import('./pages/edit-user/edit-user.module').then(m => m.EditUserPageModule),
+  { path: 'edit-user/:id', 
+    loadChildren: () => import('./pages/edit-user/edit-user.module').then(m => m.EditUserPageModule),
     canActivate: [AuthGuard],
    },
   {
     path: 'entries',
-    loadChildren: () => import('./pages/entries/entries.module').then( m => m.EntriesPageModule)
+    loadChildren: () => import('./pages/entries/entries.module').then( m => m.EntriesPageModule),
+    canActivate: [AuthGuard],
+
+  },
+  {
+    path: 'gym-user-check',
+    loadChildren: () => import('./pages/gym-user-check/gym-user-check.module').then( m => m.GymUserCheckPageModule)
   },
   
+
 
 
 ];

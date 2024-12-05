@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from './services/auth-service.service';
 
 @Component({
   selector: 'app-root',
@@ -7,15 +8,15 @@ import { Router } from '@angular/router';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private auth: AuthService) {}
 
   checkLoginStatus() {
-    return !!localStorage.getItem('userToken'); // Example token check
+    return this.auth.isLoggedIn()
   }
 
   logout() {
     // Clear login state
-    localStorage.removeItem('userToken'); // Example of removing a token
+    this.auth.logout()
     this.router.navigate(['/login']); // Redirect to login page
   }
 

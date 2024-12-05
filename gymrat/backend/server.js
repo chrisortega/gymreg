@@ -5,6 +5,9 @@ const cors = require('cors'); // Import the CORS middleware
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = 3000;
@@ -21,7 +24,15 @@ const db = mysql.createConnection({
   database: 'gyms'    // Update with your MySQL database name
 });
 
-const SECRET_KEY = "your_secret_key";
+const SECRET_KEY = "secret";
+
+// Set up multer for image upload
+
+const storage = multer.memoryStorage(); // Store images in memory
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
+});
 
 
 
@@ -72,7 +83,6 @@ function hashPasswordX(password) {
 }
 
 
-// Routes
 
 // 1. Add a gym
 app.post('/gyms', (req, res) => {
@@ -83,6 +93,8 @@ app.post('/gyms', (req, res) => {
     res.status(201).json({ id: results.insertId, gym_name });
   });
 });
+
+
 
 // 2. Add a user
 app.post('/users', (req, res) => {
@@ -122,17 +134,7 @@ app.put('/users', authenticateToken, (req, res)=>{
         res.status(200).json({ message: 'User updated successfully.' });
       });
     } else {
-      /*
-      // User does not exist, insert a new record
-      const insertQuery = 'INSERT INTO users (id, name, exp) VALUES (?, ?, ?)';
-      db.query(insertQuery, [id, name, exp], (insertErr) => {
-        if (insertErr) {
-          console.error('Error adding user:', insertErr);
-          return res.status(500).json({ error: 'Database error.' });
-        }
-        res.status(201).json({ message: 'User added successfully.' });
-      });
-      */
+
     }
   });
 });
@@ -155,6 +157,17 @@ app.get('/gyms', (req, res) => {
     res.json(results);
   });
 });
+
+// 4. Get all gyms
+app.get('/gym/:id', (req, res) => {
+  const query = `SELECT * FROM gym WHERE id = ?`;
+  const userId = req.params.id;
+  db.query(query, [userId], (err, results) => {
+    if (err) return res.status(500).send(err.message);
+    res.json(results);
+  });
+});
+
 
 // 5. Get all users
 app.get('/users', (req, res) => {
@@ -215,9 +228,10 @@ app.get('/entries', (req, res) => {
 
   function getadminByEmail(email){
     const query = `
-      SELECT admin.* 
-      FROM admin  
-      WHERE admin.email = ?
+     SELECT admin.*, gym.id as gym_id, gym.image as gym_image, gym.name as gym_name
+      FROM admin
+      JOIN gym ON admin.id = gym.admin_id
+      WHERE admin.email  = ?
     `;
     return new Promise((resolve, reject) => {
       db.query(query, [email], (err, results) => {
@@ -233,6 +247,9 @@ app.get('/entries', (req, res) => {
 
     return res.results
   }
+
+
+  
 
   function getUser(userId) {
     const query = `
@@ -254,15 +271,51 @@ app.get('/entries', (req, res) => {
     });
   }
 
-// Get a user by ID
-app.get('/users/:id', authenticateToken, async (req, res) => {
+
+
+  function getUserEntries(userId) {
+    const query = `
+   SELECT entries.*, users.*, gym.name as gym_name
+      FROM entries
+      JOIN users ON entries.users_id = users.id 
+      JOIN gym ON entries.gym_id = gym.id 
+
+      WHERE entries.users_id = ?
+    `;
+  
+    return new Promise((resolve, reject) => {
+      db.query(query, [userId], (err, results) => {
+        if (err) {
+          reject(new Error(err.message));
+        } else if (results.length === 0) {
+          reject(new Error('User not found'));
+        } else {
+          resolve(results); // Return the first result since ID is unique
+        }
+      });
+    });
+  }
+
+
+  app.get('/entries/:id', async (req, res) => {
+    const userId = req.params.id;
+    const result = await getUserEntries(userId);
+    return res.status(200).json(result);
+
+
+  });
+  
+// Get a user by  ;;;;;
+app.get('/users/:id',   async (req, res) => {
     const userId = req.params.id;
     const user = await getUser(userId);
     return res.status(200).json(user);
-    
-    return res.json(results)
+
   });
 
+
+
+  
   app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -284,7 +337,10 @@ app.get('/users/:id', authenticateToken, async (req, res) => {
      return res.status(200).json({
         userId: user.id,
         email: user.email,
-        access_token: generateAccessToken(user.userId),
+        access_token: generateAccessToken(user.userId),     
+        image: user.gym_image,
+        gym_name: user.gym_name,  
+        gym_id: user.gym_id, 
       });
     } else {
      return res.status(401).json({ error: "Invalid credentials" });
@@ -329,6 +385,31 @@ app.get('/users/:id', authenticateToken, async (req, res) => {
     } );
 
     
+// Endpoint to update just the image field
+app.put('/update-image/:id', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No image uploaded.');
+  }
+
+  const gymId = req.params.id;
+  const imageData = req.file.buffer;
+
+  const query = 'UPDATE gym SET image = ? WHERE id = ?';
+  db.query(query, [imageData, gymId], (err, result) => {
+    if (err) {
+      console.error('Error updating image:', err);
+      return res.status(500).send('Error updating image.');
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send('Gym not found.');
+    }
+
+    res.status(200).send('Image updated successfully');
+  });
+});;
+
+
 
 // Start the server
 app.listen(PORT, () => {

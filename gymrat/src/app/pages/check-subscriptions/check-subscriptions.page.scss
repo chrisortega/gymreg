@@ -1,0 +1,30 @@
+.login-page {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f9f9f9; /* Light background color */
+  }
+  
+  .logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .logo {
+    max-width: 150px;
+    height: auto;
+  }
+  
+  .login-container {
+    width: 100%;
+  }
+  
+  ion-card {
+    padding: 15px;
+  }
+  
+  ion-button.login-button {
+    margin-top: 20px;
+  }
+  
