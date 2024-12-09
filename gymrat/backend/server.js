@@ -1,6 +1,5 @@
 const express = require('express');
 const mysql = require('mysql2');
-const bodyParser = require('body-parser');
 const cors = require('cors'); // Import the CORS middleware
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -9,12 +8,15 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 
+
 const app = express();
 const PORT = 3000;
 
 // Middleware
 app.use(cors()); // Enable CORS
-app.use(bodyParser.json());
+var bodyParser = require('body-parser');
+app.use(bodyParser.json({ limit: '5mb' }));
+app.use(bodyParser.urlencoded({ limit: '5mb', extended: true, parameterLimit: 5000 }));
 
 // Database connection
 const db = mysql.createConnection({
@@ -84,27 +86,85 @@ function hashPasswordX(password) {
 
 
 
-// 1. Add a gym
-app.post('/gyms', (req, res) => {
-  const { gym_name } = req.body;
-  const query = `INSERT INTO gym (gym_name) VALUES (?)`;
-  db.query(query, [gym_name], (err, results) => {
-    if (err) return res.status(500).send(err.message);
-    res.status(201).json({ id: results.insertId, gym_name });
-  });
-});
 
 
 
-// 2. Add a user
 app.post('/users', (req, res) => {
-  const { name, gym_id } = req.body;
-  const query = `INSERT INTO users (name, gym_id) VALUES (?, ?)`;
-  db.query(query, [name, gym_id], (err, results) => {
-    if (err) return res.status(500).send(err.message);
-    res.status(201).json({ id: results.insertId, name, gym_id });
+  const { name, exp, gym_id } = req.body;
+  
+  const query = `
+    INSERT INTO users (name, exp, gym_id)
+    VALUES (?, ?, ?)
+  `;
+  const values = [name, exp, gym_id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error inserting user:', err);
+      return res.status(500).json({ error: 'Database error.' });
+    }
+
+    const insertedId = result.insertId;
+    res.status(200).json({ 
+      message: 'User inserted successfully.', 
+      id: insertedId 
+    });
   });
 });
+
+// Endpoint to update just the image field
+app.put('/update-user-image/:id', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No image uploaded.');
+  }
+
+  const gymId = req.params.id;
+  const imageData = req.file.buffer;
+  const query = 'UPDATE users SET image = ? WHERE id = ?';
+  db.query(query, [imageData, gymId], (err, result) => {
+    if (err) {
+      console.error('Error updating image:', err);
+      return res.status(500).send('Error updating image.');
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send('User not found.');
+    }
+
+    res.status(200).send('image updated successfully');
+  });
+});;
+
+
+
+
+// Endpoint to update just the image field
+app.put('/update-image/:id', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No image uploaded.');
+  }
+
+  const gymId = req.params.id;
+  const imageData = req.file.buffer;
+
+  const query = 'UPDATE gym SET image = ? WHERE id = ?';
+  db.query(query, [imageData, gymId], (err, result) => {
+    if (err) {
+      console.error('Error updating image:', err);
+      return res.status(500).send('Error updating image.');
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send('Gym not found.');
+    }
+
+    res.status(200).send('Image updated successfully');
+  });
+});;
+
+
+
+
 
 app.put('/users', authenticateToken, (req, res)=>{
   const { id, name, exp } = req.body;
@@ -253,17 +313,20 @@ app.get('/entries', (req, res) => {
 
   function getUser(userId) {
     const query = `
-      SELECT users.*
+      SELECT users.*, gym.name as gym_name
       FROM users  
+      JOIN gym on users.gym_id = gym.id
       WHERE users.id = ?
     `;
   
     return new Promise((resolve, reject) => {
       db.query(query, [userId], (err, results) => {
         if (err) {
-          reject(new Error(err.message));
+          //reject(new Error(err.message));
+          resolve([]);
         } else if (results.length === 0) {
-          reject(new Error('User not found'));
+          //reject(new Error('User not found'));
+          resolve([]);
         } else {
           resolve(results[0]); // Return the first result since ID is unique
         }
@@ -286,9 +349,9 @@ app.get('/entries', (req, res) => {
     return new Promise((resolve, reject) => {
       db.query(query, [userId], (err, results) => {
         if (err) {
-          reject(new Error(err.message));
+          resolve([]);
         } else if (results.length === 0) {
-          reject(new Error('User not found'));
+          resolve ([]);
         } else {
           resolve(results); // Return the first result since ID is unique
         }
@@ -384,30 +447,36 @@ app.get('/users/:id',   async (req, res) => {
 
     } );
 
+
     
-// Endpoint to update just the image field
-app.put('/update-image/:id', upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send('No image uploaded.');
-  }
-
-  const gymId = req.params.id;
-  const imageData = req.file.buffer;
-
-  const query = 'UPDATE gym SET image = ? WHERE id = ?';
-  db.query(query, [imageData, gymId], (err, result) => {
-    if (err) {
-      console.error('Error updating image:', err);
-      return res.status(500).send('Error updating image.');
-    }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).send('Gym not found.');
-    }
-
-    res.status(200).send('Image updated successfully');
-  });
-});;
+    
+    app.put('/update-user', upload.single('image'), (req, res) => {
+      const { id, name, exp, gym_id } = req.body;
+      const imageData = req.file ? req.file.buffer : null;
+    
+      const query = `
+        UPDATE gyms.users 
+        SET name = ?, exp = ?, gym_id = ?, image = ? 
+        WHERE id = ?`;
+    
+      const params = [name, exp, gym_id];
+      if (imageData) params.push(imageData);
+      params.push(id);
+    
+      db.query(query, params, (err, result) => {
+        if (err) {
+          console.error('Error updating user:', err);
+          return res.status(500).send('Error updating user.');
+        }
+    
+        if (result.affectedRows === 0) {
+          return res.status(404).send('User not found.');
+        }
+    
+        res.status(200).send('User updated successfully');
+      });
+    });
+    
 
 
 

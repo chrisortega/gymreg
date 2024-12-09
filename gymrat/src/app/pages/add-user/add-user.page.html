@@ -1,6 +1,6 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Add User</ion-title>
+  <ion-toolbar color="primary">
+    <ion-title class="header-title">Add User</ion-title>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
@@ -8,12 +8,66 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <form (ngSubmit)="saveUser()" #userForm="ngForm">
-
-    <ion-item>
+  <form (ngSubmit)="saveUser()" #userForm="ngForm" class="form-container">
+    <!-- Name Input -->
+    <ion-item lines="full" class="form-item">
       <ion-label position="floating">Name</ion-label>
-      <ion-input [(ngModel)]="user.name" name="name" required></ion-input>
+      <ion-input
+        [(ngModel)]="user.name"
+        name="name"
+        required
+        placeholder="Enter full name"
+      ></ion-input>
     </ion-item>
-    <ion-button expand="block" type="submit" [disabled]="!userForm.valid">Save</ion-button>
+
+    <!-- Expiration Date Input -->
+    <ion-item lines="full" class="form-item">
+      <ion-label position="stacked">Expiration Date</ion-label>
+      <ion-datetime
+        [(ngModel)]="user.exp"
+        name="exp"
+        placeholder="Select Expiration Date"
+        displayFormat="DD MMM YYYY"
+        presentation="date"
+        required
+      ></ion-datetime>
+    </ion-item>
+
+    <!-- Photo Upload -->
+    <ion-item lines="none" class="form-item">
+      <ion-label position="stacked">Upload Photo</ion-label>
+      <input
+        type="file"
+        accept="image/*"
+        (change)="onPhotoSelected($event)"
+        hidden
+        #fileInput
+      />
+      <ion-button expand="block" color="medium" (click)="fileInput.click()">
+        Choose Photo
+      </ion-button>
+    </ion-item>
+
+    <!-- Photo Preview -->
+    <div *ngIf="photoPreview" class="photo-preview-container">
+      <ion-avatar class="photo-preview">
+        <img [src]="photoPreview" alt="User Photo Preview" />
+      </ion-avatar>
+      <p>Photo Preview</p>
+    </div>
+
+    <!-- Gym ID (Hidden Field) -->
+    <input type="hidden" [(ngModel)]="user.gym_id" name="gym_id" />
+
+    <!-- Save Button -->
+    <ion-button
+      expand="block"
+      type="submit"
+      color="dark"
+      class="save-button"
+      [disabled]="!userForm.valid"
+    >
+      Save
+    </ion-button>
   </form>
 </ion-content>

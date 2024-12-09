@@ -7,12 +7,12 @@
 <ion-content class="ion-padding">
   <!-- Input field to enter User ID -->
   <ion-item>
-    <ion-label position="floating">Enter User ID</ion-label>
-    <ion-input [(ngModel)]="userId" type="number"></ion-input>
+
+    <ion-input label="Introduce tu numero de id" label-placement="floating"   placeholder="1234" (keydown.enter)="fetchEntries()"  [(ngModel)]="userId" type="number"></ion-input>
   </ion-item>
 
   <!-- Button to fetch entries -->
-  <ion-button expand="block" (click)="fetchEntries()">Search</ion-button>
+  <ion-button expand="block" color="dark" (click)="fetchEntries()">Busca</ion-button>
 
   <!-- Show error message -->
   <ion-text color="danger" *ngIf="errorMessage">
@@ -20,26 +20,36 @@
   </ion-text>
 
 
-  <ion-card *ngIf="user.name.length >0">
+  <ion-card *ngIf="user && user.id > 0">
     <ion-card-header>
-      <ion-card-title>{{ user.name }}</ion-card-title>
+      <ion-card-title>Nombre: {{ user.name }}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-grid>
         <ion-row>
           <ion-col size="4">
-            <ion-avatar>
-              <img alt="Silhouette of mountains"  src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
+            <div *ngIf="imageSrc;">
+              <img [src]="'data:image/jpeg;base64,' + imageSrc" class="logo" alt="Stored Image" />
+            </div>
+            <ion-avatar *ngIf="!imageSrc;">
+              <img alt="Silhouette of mountains" src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
             </ion-avatar>
           </ion-col>
           <ion-col size="8">
-            <p><strong>Expiry Date:</strong> {{ user.exp }}</p>
-            <p><strong>Gym ID:</strong> {{ user.gym_id }}</p>
+            <p><strong>Fecha de expiracion:</strong> {{ user.exp }}</p>
+            <p><strong>Nombre del Gym:</strong> {{ user.gym_name }}</p>
           </ion-col>
         </ion-row>
       </ion-grid>
     </ion-card-content>
   </ion-card>
+  
+
+
+
+  <ion-content *ngIf="entries.length > 0">
+
+
 
   <!-- Display entries in a table -->
   <ion-grid *ngIf="entries.length > 0">
@@ -56,4 +66,5 @@
 
     </ion-row>
   </ion-grid>
+</ion-content>
 </ion-content>

@@ -14,6 +14,7 @@ export class CheckSubscriptionsPage {
   checked: boolean = false; // Flag to indicate a check was performed
   entries: any[] = []
   
+  currentDateTime: string = "";
 
   constructor(private gymService:GymService, private auth:AuthService) {}
 
@@ -29,16 +30,17 @@ export class CheckSubscriptionsPage {
 
     var data = this.auth.getGymData()
 
-    this.imageSrc = this.bufferToBase64(data['image']['data']);
+    this.imageSrc = this.gymService.bufferToBase64(data['image']['data']);
 
     this.reloadEntries()
+
+    this.updateDateTime();
+    setInterval(() => {
+      this.updateDateTime();
+    }, 1000);
   }
 
-  bufferToBase64(buffer: ArrayBuffer): string {
-    const byteArray = new Uint8Array(buffer);
-    const base64String = btoa(String.fromCharCode.apply(null, Array.from(byteArray)));
-    return base64String;
-  }
+
    checkSubscription() {
     this.checked = true; // Indicate a check has been performed
 
@@ -72,8 +74,19 @@ export class CheckSubscriptionsPage {
 
   // Function to check if the expiration date has passed
   isExpired(expirationDate: string): boolean {
-
-    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-    return expirationDate < today; // Check if expiration date is in the past
+    return this.gymService.isExpired(expirationDate)
   }
+  updateDateTime() {
+    const now = new Date();
+    this.currentDateTime = now.toLocaleString('es-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  }
+
 }

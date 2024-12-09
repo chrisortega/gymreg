@@ -1,47 +1,75 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Storage } from '@ionic/storage-angular';
+
+
+
+
+
+import { Component } from '@angular/core';
 import { GymService } from 'src/app/services/gym.service';
+import { Route, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-edit-user',
   templateUrl: './edit-user.page.html',
   styleUrls: ['./edit-user.page.scss'],
 })
-export class EditUserPage implements OnInit {
-  user: any = { id: '', name: '', exp: '' };
+export class EditUserPage {
+  user: any = {
+    id: '',
+    name: '',
+    exp: '',
+    gym_id: '',
+  };
+  selectedImage: File | null = null;
+  imagePreview: string | null = null;
 
-  constructor(
-    private route: ActivatedRoute,
-    private gymService: GymService,
-    private router: Router
+  constructor(private userService: GymService,private route: ActivatedRoute,
   ) {}
 
-  async ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id') || ""; // Get user ID from route
-    this.gymService.getUser(id).subscribe(user=>{
-      if (user) {
-        this.user = user;
-      } else {
-        console.error('User not found');
-      }
-    })
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedImage = file;
 
-
+      // Generate an image preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
-  async saveUser() {
-    this.gymService.saveUser(this.user).subscribe({
-      next: (response) => {
-        console.log('User saved successfully:', response);
-        //this.navCtrl.back(); // Navigate back after saving
+  ngOnInit() {
+    // Get the user ID from the route parameter
+    const userId = this.route.snapshot.paramMap.get('id');
+    if (userId) {
+      this.user.id = userId;
+      this.userService.getUser(userId).subscribe(data => {
+        this.user = data
+      })
+    }
+  }
+
+  saveUser() {
+    const formData = new FormData();
+    formData.append('id', this.user.id);
+    formData.append('name', this.user.name);
+    formData.append('exp', this.user.exp.split("T")[0]);
+    formData.append('gym_id', this.user.gym_id);
+
+    if (this.selectedImage) {
+      formData.append('image', this.selectedImage);
+    }
+
+    this.userService.updateUser(formData).subscribe({
+      next: () => {
+        console.log('User updated successfully');
       },
-      error: (error) => {
-        console.error('Error saving user:', error);
-        alert('An error occurred while saving the user.');
+      error: (err) => {
+        console.error('Error updating user:', err);
       },
     });
-    
-   // this.router.navigate(['/manage-users']); // Navigate back to Manage Users page
   }
 }
+

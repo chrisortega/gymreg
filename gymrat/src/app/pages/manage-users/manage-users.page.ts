@@ -25,4 +25,7 @@ export class ManageUsersPage implements OnInit {
 
   }
 
+  isExpired(expirationDate: string): boolean {
+    return this.gymService.isExpired(expirationDate)
+  }
 }

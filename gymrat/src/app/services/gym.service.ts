@@ -45,8 +45,9 @@ export class GymService {
   }
 
   // Add a new user
-  addUser(name: string, gym_id:number = 1): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users`, { name, gym_id });
+  addUser(payload: {}): Observable<any> {
+    const headers = this.headers
+    return this.http.post(`${this.apiUrl}/users`, payload, {headers});
   }
 
   // Get all entries
@@ -83,11 +84,52 @@ export class GymService {
       return this.http.put(`${this.apiUrl}/users`, user, { headers });
     }
 
+    updateUserImage(userId: string, base64Image: string): Observable<any> {
+      const url = `${this.apiUrl}/update-user-image/${userId}`;
+  
+      // Extract the MIME type and Base64 content
+      const base64Parts = base64Image.split(',');
+      const mimeType = base64Parts[0].match(/:(.*?);/)?.[1] || '';
+      const base64Data = base64Parts[1];
+  
+      // Convert Base64 to Blob
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = Array.from(byteCharacters, char => char.charCodeAt(0));
+      const byteArray = new Uint8Array(byteNumbers);
+      const imageBlob = new Blob([byteArray], { type: mimeType });
+  
+      const formData = new FormData();
+      formData.append('image', imageBlob, 'image.jpg'); // You can rename 'image.jpg' if needed
+  
+      const headers = new HttpHeaders({
+        // Add any additional headers if needed
+      });
+  
+      return this.http.put(url, formData, { headers });
+    }
+
+
 
   login(email:string, password:string): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, { email: email, password:password })
   }
 
 
+  isExpired(expirationDate: string): boolean {    
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+    return expirationDate < today; // Check if expiration date is in the past
+  }
+
+  bufferToBase64(buffer: ArrayBuffer): string {
+    const byteArray = new Uint8Array(buffer);
+    const base64String = btoa(String.fromCharCode.apply(null, Array.from(byteArray)));
+    return base64String;
+  }
+
+  
+  updateUser(formData: FormData): Observable<any> {
+    const url = `${this.apiUrl}/update-user`;
+    return this.http.put(url, formData);
+  }
   
 }

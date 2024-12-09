@@ -1,16 +1,16 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Manage Users</ion-title>
+    <ion-title>Administrar Usuarios</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <ion-list>
     <ion-item *ngFor="let user of users" >
-      <ion-label [routerLink]="['/edit-user', user.id]">
-        <h2 >{{ user.name }}</h2>
-        <p>Membership ID: {{ user.id }}</p>
-        <p>Expires On: {{ user.exp }}</p>
+      <ion-label [routerLink]="['/edit-user', user.id]" >
+        <h2 >Nombre: {{ user.name }}</h2>
+        <p>ID: {{ user.id }}</p>
+        <p >Expira: {{ user.exp }}     <ion-badge [color]="isExpired(user.exp) ? 'danger' : 'success'">{{isExpired(user.exp) ? 'Expirado' : 'Activo'}}</ion-badge>        </p>
       </ion-label>
       <ion-buttons slot="end">
         <ion-button color="danger" (click)="deleteUser(user.id)">Delete</ion-button>
@@ -18,5 +18,5 @@
     </ion-item>
   </ion-list>
 
-  <ion-button expand="block" routerLink="/add-user">Add User</ion-button>
+  <ion-button expand="block" color="dark" routerLink="/add-user">Add User</ion-button>
 </ion-content>
