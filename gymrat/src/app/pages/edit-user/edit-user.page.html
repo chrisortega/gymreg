@@ -13,7 +13,14 @@
       <ion-label position="floating">Membership ID</ion-label>
       <ion-input [(ngModel)]="user.id" disabled name="id" readonly></ion-input>
     </ion-item>
-
+    <ion-item>
+      <div *ngIf="imageSrc;">
+        <img [src]="'data:image/jpeg;base64,' + imageSrc" class="logo" alt="Stored Image" />
+      </div>
+      <ion-avatar *ngIf="!imageSrc;">
+        <img alt="Silhouette of mountains" src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
+      </ion-avatar>
+    </ion-item>
     <ion-item>
       <ion-label position="floating">Name</ion-label>
       <ion-input [(ngModel)]="user.name" name="name" required></ion-input>

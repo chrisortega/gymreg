@@ -43,6 +43,11 @@ export class GymService {
   getUsers(): Observable<any> {
     return this.http.get(`${this.apiUrl}/users`);
   }
+  getUsersByGym(): Observable<any> {
+    var gymId = this.auth.getGymData()["gym_id"]
+    return this.http.get(`${this.apiUrl}/users/gym/${gymId}`);
+  }
+  
 
   // Add a new user
   addUser(payload: {}): Observable<any> {
@@ -64,12 +69,14 @@ export class GymService {
   // Add a new entry
   addEntry(userId: string, gym_id:number = 1): Observable<any> {
     const headers = this.headers
+    gym_id = this.auth.getGymData()["gym_id"]
     return this.http.post(`${this.apiUrl}/entries`,  { user_id: userId, gym_id:gym_id },{headers});
   }
 
   // Get all users
   getUser(id:string): Observable<any> {
     const headers = this.headers
+    
     return this.http.get(`${this.apiUrl}/users/${id}`,{headers});
   }
 
@@ -126,7 +133,7 @@ export class GymService {
     return base64String;
   }
 
-  
+
   updateUser(formData: FormData): Observable<any> {
     const url = `${this.apiUrl}/update-user`;
     return this.http.put(url, formData);

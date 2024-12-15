@@ -15,15 +15,17 @@ export class AddUserPage implements OnInit {
     photo_id: null,
     gym_id: null,
   };
+  
   photoPreview: string | null = null;
 
   constructor(private storage: Storage, private auth:AuthService, private gymService: GymService) {}
-
+  gymId = null
   async ngOnInit() {
     // Fetch gym_id from storage
-    const gymId = await this.storage.get('gym_id');
-    if (gymId) {
-      this.user.gym_id = gymId;
+    
+    if (this.gymId) {
+      this.user.gym_id = this.auth.getGymData()['gym_id']
+      this.gymId
     }
   }
 

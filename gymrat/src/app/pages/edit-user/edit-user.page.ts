@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
 import { GymService } from 'src/app/services/gym.service';
 import { Route, Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
+import { tick } from '@angular/core/testing';
 
 @Component({
   selector: 'app-edit-user',
@@ -22,6 +23,8 @@ export class EditUserPage {
   };
   selectedImage: File | null = null;
   imagePreview: string | null = null;
+  imageSrc: string | undefined;
+
 
   constructor(private userService: GymService,private route: ActivatedRoute,
   ) {}
@@ -44,9 +47,19 @@ export class EditUserPage {
     // Get the user ID from the route parameter
     const userId = this.route.snapshot.paramMap.get('id');
     if (userId) {
+
       this.user.id = userId;
-      this.userService.getUser(userId).subscribe(data => {
-        this.user = data
+      this.userService.getUser(userId).subscribe(data => {  
+        this.user = data     
+        console.log("users",this.user)         
+        try {
+          this.imageSrc = this.userService.bufferToBase64(this.user['image']['data']);    
+        } catch (error) {
+          
+        }
+        
+        
+
       })
     }
   }

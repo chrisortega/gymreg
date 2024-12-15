@@ -22,15 +22,19 @@ export class CheckSubscriptionsPage {
 
   reloadEntries(){
     this.gymService.getEntriesFromToday().subscribe(entries=>{
-      this.entries = entries
+
+      
+
+
+        this.entries = entries
+
+      
     })
   }
 
   ngOnInit(){
 
     var data = this.auth.getGymData()
-
-    this.imageSrc = this.gymService.bufferToBase64(data['image']['data']);
 
     this.reloadEntries()
 
@@ -51,18 +55,33 @@ export class CheckSubscriptionsPage {
         var exist = this.entries.find((item) => item.users_id === user.id);
         
         if (exist){
-          alert("este usuario ya ingreso hoy")
+          alert("Este usuario ya ingreso hoy")
         }else{
-          this.gymService.addEntry(user.id).subscribe(data=>{
-            this.reloadEntries()
-          })  
+          this.gymService.addEntry(user.id).subscribe(
+
+            {
+              next: (data) => {
+                if ('error' in data) {
+                  console.log(data.message);
+                } else {
+                  console.log('Data received:', data);
+                  this.reloadEntries()
+                }
+              },
+              error: (err) => {
+                alert(err.error)
+                console.error('Unexpected Error:', err);
+              },
+            }
+
+          )  
 
         }
         //
 
       } else {
         this.userFound = false;
-       alert("usuario no existe")
+       alert("Usuario no existe")
       }
   
       // Clear the input field after checking
@@ -89,4 +108,11 @@ export class CheckSubscriptionsPage {
     });
   }
 
+  bufferToBase64(data: any){
+    if (data){
+      return this.gymService.bufferToBase64(data)
+    }
+    return null
+    
+  }
 }

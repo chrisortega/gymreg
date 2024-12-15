@@ -32,12 +32,21 @@
 
   <!-- Visible List of Checked Users -->
       <ion-list>
-        <ion-item *ngFor="let entry of entries" >
+        <ion-item *ngFor="let entry of entries" [routerLink]="['/edit-user', entry.users_id]"  >
+          <ion-label>
+            <div *ngIf="entry.image" class="image-container">
+              
+              <img class="circle-image" [src]="'data:image/jpeg;base64,' + bufferToBase64(entry.image.data)" class="logo" alt="Stored Image" />
+            </div>
+            <ion-avatar *ngIf="!entry.image;" class="image-container">
+              <img alt="Silhouette of mountains"  src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
+            </ion-avatar>        
+          </ion-label>
 
-          <ion-label [color]="isExpired(entry.exp) ? 'danger' : 'success'" >{{ entry.name }}</ion-label>
+          <ion-label [color]="isExpired(entry.exp) ? 'danger' : 'primary'" >{{ entry.name }}</ion-label>
 
-          <ion-label [color]="isExpired(entry.exp) ? 'danger' : 'success'" >{{ entry.exp }}</ion-label>
-          <ion-icon  [color]="isExpired(entry.exp) ? 'danger' : 'success'" [name]="isExpired(entry.exp) ? 'card' : 'barbell'"></ion-icon>
+          <ion-label [color]="isExpired(entry.exp) ? 'danger' : 'primary'" >{{ entry.exp }}</ion-label>
+          <ion-icon  [color]="isExpired(entry.exp) ? 'danger' : 'primary'" [name]="isExpired(entry.exp) ? 'card' : 'check'"></ion-icon>
           
 
         </ion-item>

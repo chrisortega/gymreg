@@ -5,18 +5,24 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-list>
-    <ion-item *ngFor="let user of users" >
-      <ion-label [routerLink]="['/edit-user', user.id]" >
-        <h2 >Nombre: {{ user.name }}</h2>
-        <p>ID: {{ user.id }}</p>
-        <p >Expira: {{ user.exp }}     <ion-badge [color]="isExpired(user.exp) ? 'danger' : 'success'">{{isExpired(user.exp) ? 'Expirado' : 'Activo'}}</ion-badge>        </p>
+  <ion-list *ngFor="let user of users">
+    <ion-item [routerLink]="['/edit-user', user.id]">
+      <ion-label>
+        <div *ngIf="user.image" class="image-container">
+              
+          <img class="circle-image" [src]="'data:image/jpeg;base64,' + bufferToBase64(user.image.data)" class="logo" alt="Stored Image" />
+        </div>
+        <ion-avatar *ngIf="!user.image;" class="image-container">
+          <img alt="Silhouette of mountains"  src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
+        </ion-avatar>  
       </ion-label>
-      <ion-buttons slot="end">
-        <ion-button color="danger" (click)="deleteUser(user.id)">Delete</ion-button>
-      </ion-buttons>
+      <ion-label>{{user.name}}</ion-label>
+      <ion-label> <ion-badge [color]="isExpired(user.exp) ? 'danger' : 'success'">{{isExpired(user.exp) ? 'Expirado' : 'Activo'}}</ion-badge></ion-label>
     </ion-item>
+
   </ion-list>
+
+
 
   <ion-button expand="block" color="dark" routerLink="/add-user">Add User</ion-button>
 </ion-content>

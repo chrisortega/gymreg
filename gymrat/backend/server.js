@@ -200,8 +200,13 @@ app.put('/users', authenticateToken, (req, res)=>{
 });
 
 // 3. Register a user entry
-app.post('/entries', authenticateToken , (req, res) => {
+app.post('/entries', async (req, res) => {
   const { user_id, gym_id } = req.body;
+  var flag1 = await userBelongsToGym(user_id, gym_id)
+  if (!flag1){
+    return res.status(426).send("User does not below to gym");
+   }
+
   const query = `INSERT INTO entries (users_id,gym_id) VALUES (?,?)`;
   db.query(query, [user_id, gym_id], (err, results) => {
     if (err) return res.status(500).send(err.message);
@@ -228,13 +233,31 @@ app.get('/gym/:id', (req, res) => {
   });
 });
 
+// 5. Get all users of a gym
+app.get('/users/gym/:gymId', (req, res) => {
+  const gymId = req.params.gymId;
+
+  const query = `
+    SELECT users.*
+    FROM users 
+    JOIN gym ON users.gym_id = gym.id
+    where gym_id = ?
+
+  `;
+  db.query(query,[gymId], (err, results) => {
+    if (err) return res.status(500).send(err.message);
+    res.json(results);
+  });
+});
 
 // 5. Get all users
 app.get('/users', (req, res) => {
+  
   const query = `
-    SELECT users.id as id, users.name as name, users.exp as exp, gym.name as gym_name
+    SELECT users.*
     FROM users 
     JOIN gym ON users.gym_id = gym.id
+
   `;
   db.query(query, (err, results) => {
     if (err) return res.status(500).send(err.message);
@@ -271,7 +294,7 @@ app.get('/entries', (req, res) => {
     const { limit = 10, offset = 0 } = req.query;
   
     const query = `
-      SELECT entries.*, users.name, users.exp 
+      SELECT entries.*, users.name, users.exp , users.image
       FROM entries 
       JOIN users ON entries.users_id = users.id 
       WHERE DATE(day) = CURDATE()
@@ -286,19 +309,60 @@ app.get('/entries', (req, res) => {
 
 
 
+  function userBelongsToGym(user_id, gym_id){
+    const query = `SELECT users.id FROM gyms.users where users.id = ? and gym_id=?;`;
+    console.log(query,[user_id, gym_id])    
+   return new Promise((resolve, reject) => {
+     db.query(query, [user_id, gym_id], (err, results) => {
+       if (err) {
+         
+         resolve(false);
+       } else if (results.length === 0) {
+         
+         resolve(false);
+       } else {
+        resolve(true);
+        
+       }
+     });
+   });
+
+   return false
+  }
+
+  function getGymByAdmin(admin_id){
+    const query = `
+    SELECT gym.*
+     FROM gym
+     WHERE gym.admin_id  = ?
+   `;
+   return new Promise((resolve, reject) => {
+     db.query(query, [admin_id], (err, results) => {
+       if (err) {
+         return []
+       } else if (results.length === 0) {
+         return []
+       } else {
+         resolve(results[0]); // Return the first result since ID is unique
+       }
+     });
+   });
+
+   return res.results 
+  }
+
   function getadminByEmail(email){
     const query = `
-     SELECT admin.*, gym.id as gym_id, gym.image as gym_image, gym.name as gym_name
+     SELECT admin.*
       FROM admin
-      JOIN gym ON admin.id = gym.admin_id
       WHERE admin.email  = ?
     `;
     return new Promise((resolve, reject) => {
       db.query(query, [email], (err, results) => {
         if (err) {
-          reject(new Error(err.message));
+          return []
         } else if (results.length === 0) {
-          reject(new Error('User not found'));
+          return []
         } else {
           resolve(results[0]); // Return the first result since ID is unique
         }
@@ -342,7 +406,6 @@ app.get('/entries', (req, res) => {
       FROM entries
       JOIN users ON entries.users_id = users.id 
       JOIN gym ON entries.gym_id = gym.id 
-
       WHERE entries.users_id = ?
     `;
   
@@ -372,6 +435,7 @@ app.get('/entries', (req, res) => {
 app.get('/users/:id',   async (req, res) => {
     const userId = req.params.id;
     const user = await getUser(userId);
+    
     return res.status(200).json(user);
 
   });
@@ -389,7 +453,12 @@ app.get('/users/:id',   async (req, res) => {
      
     }
     const user = await getadminByEmail(email);
-
+    
+    if (user.length <= 0) {
+      return  res
+        .status(403)
+        .json({ error: "invalid" }); 
+    }
     const passwordMatch = await bcrypt.compare(
       password,
       user.password
@@ -397,13 +466,14 @@ app.get('/users/:id',   async (req, res) => {
 
 
     if (passwordMatch) {
+      const gym = await getGymByAdmin(user.id)
      return res.status(200).json({
         userId: user.id,
         email: user.email,
         access_token: generateAccessToken(user.userId),     
-        image: user.gym_image,
-        gym_name: user.gym_name,  
-        gym_id: user.gym_id, 
+        image: gym.image,
+        gym_name: gym.name,  
+        gym_id: gym.id, 
       });
     } else {
      return res.status(401).json({ error: "Invalid credentials" });
@@ -453,15 +523,23 @@ app.get('/users/:id',   async (req, res) => {
     app.put('/update-user', upload.single('image'), (req, res) => {
       const { id, name, exp, gym_id } = req.body;
       const imageData = req.file ? req.file.buffer : null;
-    
-      const query = `
+      const params = [name, exp, gym_id];
+
+      var query = `
+      UPDATE gyms.users 
+      SET name = ?, exp = ?, gym_id = ?
+      WHERE id = ?`;
+      if (imageData){
+        query = `
         UPDATE gyms.users 
         SET name = ?, exp = ?, gym_id = ?, image = ? 
         WHERE id = ?`;
+        params.push(imageData);
+      }
+
     
-      const params = [name, exp, gym_id];
-      if (imageData) params.push(imageData);
       params.push(id);
+      
     
       db.query(query, params, (err, result) => {
         if (err) {

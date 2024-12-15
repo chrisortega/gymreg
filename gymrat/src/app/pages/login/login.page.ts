@@ -27,6 +27,7 @@ export class LoginPage {
         // Handle successful response
         
         this.auth.login(response["access_token"])
+        
         this.auth.setVariables({
           userId: response.id,
           email: response.email,
@@ -39,11 +40,13 @@ export class LoginPage {
       },
       error: (error) => {
         // Handle error response
+        alert('Error fetching data:' + error)
         console.error('Error fetching data:', error);
         //this.errorMessage = 'Failed to fetch data. Please try again later.';
       },
       complete: () => {
         // Optional: Handle completion
+        
         console.log('Request completed.');
       },
 
