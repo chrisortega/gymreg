@@ -204,7 +204,7 @@ app.post('/entries', async (req, res) => {
   const { user_id, gym_id } = req.body;
   var flag1 = await userBelongsToGym(user_id, gym_id)
   if (!flag1){
-    return res.status(426).send("User does not below to gym");
+    return res.status(426).send("Este usuario no esta en este gymnasio");
    }
 
   const query = `INSERT INTO entries (users_id,gym_id) VALUES (?,?)`;
@@ -311,7 +311,6 @@ app.get('/entries', (req, res) => {
 
   function userBelongsToGym(user_id, gym_id){
     const query = `SELECT users.id FROM gyms.users where users.id = ? and gym_id=?;`;
-    console.log(query,[user_id, gym_id])    
    return new Promise((resolve, reject) => {
      db.query(query, [user_id, gym_id], (err, results) => {
        if (err) {
