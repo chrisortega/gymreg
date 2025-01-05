@@ -1,0 +1,156 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>gymadmin</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div style="display: flex; justify-content: center; align-items: center; text-align: center;">
+    <ion-item>
+      <!-- Editable image -->
+      <div *ngIf="imageSrc">
+        <img [src]="'data:image/jpeg;base64,' + imageSrc" class="logo" alt="Stored Image" />
+
+      </div>
+      <ion-avatar *ngIf="!imageSrc">
+        <img alt="Silhouette of mountains" src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
+      </ion-avatar>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">Imagen de perfil</ion-label>
+      <input 
+        type="file" 
+        (change)="onFileSelected($event)" 
+        accept="image/*"        
+        required>
+      <div *ngIf="imagePreview" class="image-preview">
+        <img [src]="imagePreview" alt="Selected Image" />
+      </div>
+    </ion-item>
+  </div>
+
+    <form (ngSubmit)="saveData()" #userForm="ngForm">
+
+
+      <ion-item>
+        <ion-label position="stacked">Nombre:</ion-label>
+        <ion-input [(ngModel)]="gym_data.gym_name" name="gym_name" placeholder="Nombre del gym"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Email:</ion-label>
+        <ion-input [(ngModel)]="gym_data.email" name="email" type="email" placeholder="Enter Email"></ion-input>
+      </ion-item>
+      <ion-button color="dark" expand="block" type="submit" [disabled]="!userForm.valid">Guardar</ion-button>
+
+  </form>
+
+  <ion-item>
+     <h1>Cambio de contraseña</h1>
+    <ion-label position="stacked">Contraseña:</ion-label>
+    <ion-input [(ngModel)]="gym_data.password" type="password" placeholder="Enter Password"></ion-input>
+    <ion-button id="open-modal" expand="block">Iniciar proceso de reinicio de contraseña</ion-button>
+
+    
+  </ion-item>
+
+
+
+
+  <ion-modal trigger="open-modal" (willDismiss)="onWillDismiss($event)">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button (click)="cancel()">Cerrar</ion-button>
+          </ion-buttons>
+          <ion-title>Crea otra contraseña</ion-title>
+
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-item>
+          <ion-input
+            label="contraseña anterior"
+            labelPlacement="stacked"
+            type="text"
+            placeholder="*******"
+            [(ngModel)]="oldpassword"
+          ></ion-input>          
+        </ion-item>
+
+          <ion-item>
+            <ion-input
+              label="nueva contraseña"
+              labelPlacement="stacked"
+              type="password"
+              [(ngModel)]="newpassword"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input
+            label="cnfirma contraseña"
+            labelPlacement="stacked"
+            type="password"
+            [(ngModel)]="confirmnewpassword"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item *ngIf="isCodeEntryVisible">
+          <ion-row class="verification-container">
+            <ion-col size="3">
+              <ion-input
+                type="text"
+                maxlength="1"
+                class="verification-box"
+                [(ngModel)]="code[0]"
+                #box0
+                autofocus
+              ></ion-input>
+            </ion-col>
+            <ion-col size="3">
+              <ion-input
+                type="text"
+                maxlength="1"
+                class="verification-box"
+                [(ngModel)]="code[1]"
+                #box1
+              ></ion-input>
+            </ion-col>
+            <ion-col size="3">
+              <ion-input
+                type="text"
+                maxlength="1"
+                class="verification-box"
+                [(ngModel)]="code[2]"
+                #box2
+              ></ion-input>
+            </ion-col>
+            <ion-col size="3">
+              <ion-input
+                type="text"
+                maxlength="1"
+                class="verification-box"
+                [(ngModel)]="code[3]"
+                #box3
+              ></ion-input>
+            </ion-col>
+          </ion-row>
+          
+        </ion-item>
+
+        <ion-button  expand="block"  (click)="generateVerificationCode()" style="margin: 20px;"  color="dark">
+          Generar codigo de verificacion
+        </ion-button>
+
+        <ion-button *ngIf="isCodeEntryVisible" expand="block" (click)="reset_password()" style="margin: 20px;" color="dark">
+          Reiniciar contraseña
+        </ion-button>
+
+  
+
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

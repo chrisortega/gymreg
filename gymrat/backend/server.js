@@ -7,6 +7,7 @@ const nodemailer = require('nodemailer');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const twilio = require('twilio');
 
 
 const app = express();
@@ -70,20 +71,6 @@ function authenticateToken(req, res, next) {
 }
 
 
-function hashPasswordX(password) {
-    bcrypt.genSalt(10)
-        .then(salt => {
-            return bcrypt.hash(password, salt); // Use resolved salt
-        })
-        .then(hashedPassword => {
-           
-            return hashedPassword;
-        })
-        .catch(error => {
-            console.error("Error hashing password:", error);
-        });
-}
-
 
 
 
@@ -123,7 +110,7 @@ app.put('/update-user-image/:id', upload.single('image'), (req, res) => {
   const query = 'UPDATE users SET image = ? WHERE id = ?';
   db.query(query, [imageData, gymId], (err, result) => {
     if (err) {
-      console.error('Error updating image:', err);
+  
       return res.status(500).send('Error updating image.');
     }
 
@@ -290,18 +277,20 @@ app.get('/entries', (req, res) => {
       res.json(results);
     });
   });
-  app.get('/entries/today', (req, res) => {
+  app.get('/entries/today/:gymid', (req, res) => {
+    const gymid = req.params.gymid;
     const { limit = 10, offset = 0 } = req.query;
   
     const query = `
-      SELECT entries.*, users.name, users.exp , users.image
+      SELECT entries.*, users.name, users.exp , users.image, users.id as user_id
       FROM entries 
-      JOIN users ON entries.users_id = users.id 
-      WHERE DATE(day) = CURDATE()
+      JOIN users ON entries.users_id = users.id
+      JOIN gym ON entries.gym_id = gym.id 
+      WHERE DATE(day) = CURDATE() and gym.id = ?
       LIMIT ? OFFSET ?
     `;
   
-    db.query(query, [parseInt(limit), parseInt(offset)], (err, results) => {
+    db.query(query, [gymid,parseInt(limit), parseInt(offset)], (err, results) => {
       if (err) return res.status(500).send(err.message);
       res.json(results);
     });
@@ -481,7 +470,15 @@ app.get('/users/:id',   async (req, res) => {
    return res.status(400).json({ error: "bad request" });
   });
 
-
+  async function hashPassword(password) {
+    try {
+      const salt = await bcrypt.genSalt(10); // Await the salt generation
+      const hashedPassword = await bcrypt.hash(password, salt); // Await the password hashing
+      return hashedPassword;
+    } catch (error) {
+      throw new Error('Error hashing password: ' + error.message);
+    }
+  }
     app.put('/resetPassword',(req, res) => {
         const { email, password, token } = req.body;
 
@@ -555,6 +552,101 @@ app.get('/users/:id',   async (req, res) => {
     });
     
 
+    function generateVerificationCode() {
+      return Math.floor(1000 + Math.random() * 9000); // Ensures a 4-digit number
+    }
+    
+
+    //pending
+    app.post('/send-password-code', (req, res) => {
+      const {  email, id } = req.body;
+      //const accountSid = 'x';
+      //const authToken = 'x';
+      //const client = require('twilio')(accountSid, authToken);
+      const verificationCode = generateVerificationCode();
+        /* 
+      client.messages
+          .create({
+            body: `Tu codigo es: ${verificationCode}`,
+            from: '+x', // Replace with your Twilio number
+            to: '+x',   // Replace with the recipient's number
+          })
+          .then(message => console.log(`Message sent: ${message.sid}`))
+          .catch(error => console.error('Error sending message:', error));
+          */
+          const updateQuery = 'UPDATE `gyms`.`admin` SET `verify_code` = ?,  `verify_code_exp` = DATE_ADD(NOW(), INTERVAL 2 HOUR) WHERE `id` = ? and email = ?;';
+          db.query(updateQuery, [verificationCode, id, email], (updateErr) => {
+            if (updateErr) {
+            
+              return res.status(500).json({ error: 'Database error.' });
+            }
+            return res.status(200).json({ "code":"is sent on email" });
+          });
+          
+
+    }
+
+          
+  )
+  app.post('/verify-code', async (req, res) => {
+    const { code, email, id, newpassword } = req.body;    
+    const query = `
+      UPDATE gyms.admin
+      SET verify_code = NULL, password = ?
+      WHERE id = ? AND email = ? AND verify_code = ? AND verify_code_exp > NOW();
+    `;  
+    const hashedPassword = await hashPassword(newpassword);    
+    
+     db.query(query, [hashedPassword ,id, email, parseInt(code)], (err, result) => {
+      if (err) {        
+        return res.status(500).json({ error: 'Database error' });
+      }
+  
+      // If no rows were affected, the code is either incorrect or expired
+      if (result.affectedRows === 0) {
+        return res.status(400).json({ error: 'Invalid or expired verification code' });
+      }
+  
+      // If the code was successfully invalidated, the verification was successful
+
+      res.status(200).json({ message: 'Verification successful' });
+    });
+  });
+
+
+  app.put('/update-gym', upload.single('image'), (req, res) => {
+    const { name, gym_id } = req.body;
+    const imageData = req.file ? req.file.buffer : null;
+    const params = [name];
+
+    var query = `
+    UPDATE gyms.gym 
+    SET name = ?
+    WHERE id = ?`;
+    if (imageData){
+      query = `
+      UPDATE gyms.gym 
+      SET name = ?, image = ? 
+      WHERE id = ?`;
+      params.push(imageData);
+    }
+
+    params.push(gym_id);
+    
+  
+    db.query(query, params, (err, result) => {
+      if (err) {
+        console.error('Error updating gym:', err);
+        return res.status(500).send('Error updating user.');
+      }
+  
+      if (result.affectedRows === 0) {
+        return res.status(404).send('gym not found.');
+      }
+  
+      res.status(200).send('gym updated successfully');
+    });
+  });
 
 
 // Start the server

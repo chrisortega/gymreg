@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from 'src/app/services/auth-service.service';
+import { GymService } from 'src/app/services/gym.service';
 
 @Component({
   selector: 'app-shared-header',
@@ -7,13 +9,30 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SharedHeaderComponent implements OnInit {
   currentDateTime: string = "";
+  name: string = "GymAdmin"
+  imageSrc: string | undefined;
 
+
+  constructor(private auth:AuthService, private gymService:GymService){}
+  
   ngOnInit() {
+    var data = this.auth.getGymData()
+    if (data){
+    this.name = data.gym_name
     this.updateDateTime();
     setInterval(() => {
       this.updateDateTime();
     }, 1000);
+
+    try {
+      this.imageSrc = this.gymService.bufferToBase64(data.image['data']);    
+    } catch (error) {
+      
+    }
   }
+  }
+
+
 
   updateDateTime() {
     const now = new Date();

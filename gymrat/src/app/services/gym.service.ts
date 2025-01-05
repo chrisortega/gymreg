@@ -10,6 +10,7 @@ interface DataItem {
   name: string;
 }
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -62,14 +63,14 @@ export class GymService {
   }
 
     // Get all entries from today
-    getEntriesFromToday(): Observable<any> {
-      return this.http.get(`${this.apiUrl}/entries/today`);
+    getEntriesFromToday(gymId:string): Observable<any> {
+      return this.http.get(`${this.apiUrl}/entries/today/${gymId}`);
     }
 
   // Add a new entry
   addEntry(userId: string, gym_id:number = 1): Observable<any> {
     const headers = this.headers
-    gym_id = this.auth.getGymData()["gym_id"]
+     gym_id = this.auth.getGymData().gym_id
     return this.http.post(`${this.apiUrl}/entries`,  { user_id: userId, gym_id:gym_id },{headers});
   }
 
@@ -138,5 +139,26 @@ export class GymService {
     const url = `${this.apiUrl}/update-user`;
     return this.http.put(url, formData);
   }
-  
+ 
+  send_verification_codw(): Observable<any> {
+    var email = this.auth.getGymData()['email']
+    var id = this.auth.getGymData()['userId']
+    const headers = this.headers    
+    return this.http.post(`${this.apiUrl}/send-password-code`, { email: email, id:id }, { headers })
+  }
+
+  reset_password(code:number, newpassword:string): Observable<any> {
+    var email = this.auth.getGymData()['email']
+    var id = this.auth.getGymData()['userId']
+    const headers = this.headers    
+    return this.http.post(`${this.apiUrl}/verify-code`, { email: email, id:id, code:code, newpassword:newpassword }, { headers })
+  }
+
+  updateAdmin(formData: FormData): Observable<any> {    
+    const url = `${this.apiUrl}/update-gym`;
+    return this.http.put(url, formData);
+  }
+
+
+
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { GymService } from 'src/app/services/gym.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-user',
@@ -18,7 +19,7 @@ export class AddUserPage implements OnInit {
   
   photoPreview: string | null = null;
 
-  constructor(private storage: Storage, private auth:AuthService, private gymService: GymService) {}
+  constructor(private storage: Storage, private auth:AuthService, private gymService: GymService, private router: Router) {}
   gymId = null
   async ngOnInit() {
     // Fetch gym_id from storage
@@ -43,17 +44,17 @@ export class AddUserPage implements OnInit {
   }
 
   saveUser() {
-    console.log('User saved:', this.user);
     var gym_id = this.auth.getGymData()['gym_id']
     this.user.gym_id = gym_id
     this.gymService.addUser(this.user).subscribe(response=>{
-      console.log(response.id)
+
       this.gymService.updateUserImage(response.id, this.user.photo_id).subscribe(response => {
-        console.log(response)
+
       })
+
+      this.router.navigate(['manage-users']);
     })
 
-    // Add logic to send user data to the backend or save locally
   }
 
 

@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
-
+import { buffer } from 'rxjs';
+import { GYMDATA } from '../models/gymdata.interface';
 @Injectable({
   providedIn: 'root',
 })
+
+
 export class AuthService {
   login(token: string): Boolean {
     localStorage.setItem('userToken', token);
@@ -24,7 +27,7 @@ export class AuthService {
     return !!localStorage.getItem('userToken');
   }
 
-  getGymData(): any {
+  getGymData(): GYMDATA {
     return JSON.parse(localStorage.getItem('gym_data')?.toString() || "{}")
   }
 

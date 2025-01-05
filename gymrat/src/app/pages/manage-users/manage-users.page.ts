@@ -19,7 +19,7 @@ export class ManageUsersPage implements OnInit {
   // Load users
   loadUsers() {   
     this.gymService.getUsersByGym().subscribe((data) => {
-      console.log(data)
+
       this.users = data;
       for (let index = 0; index < this.users.length; index++) {
 

@@ -51,7 +51,6 @@ export class EditUserPage {
       this.user.id = userId;
       this.userService.getUser(userId).subscribe(data => {  
         this.user = data     
-        console.log("users",this.user)         
         try {
           this.imageSrc = this.userService.bufferToBase64(this.user['image']['data']);    
         } catch (error) {

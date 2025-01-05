@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title class="header-title">Add User</ion-title>
+    <ion-title class="header-title">Agrega membresia</ion-title>
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
@@ -11,7 +11,7 @@
   <form (ngSubmit)="saveUser()" #userForm="ngForm" class="form-container">
     <!-- Name Input -->
     <ion-item lines="full" class="form-item">
-      <ion-label position="floating">Name</ion-label>
+      <ion-label position="floating">Nombre</ion-label>
       <ion-input
         [(ngModel)]="user.name"
         name="name"
@@ -22,7 +22,7 @@
 
     <!-- Expiration Date Input -->
     <ion-item lines="full" class="form-item">
-      <ion-label position="stacked">Expiration Date</ion-label>
+      <ion-label position="stacked">Membresia expira</ion-label>
       <ion-datetime
         [(ngModel)]="user.exp"
         name="exp"
@@ -35,7 +35,7 @@
 
     <!-- Photo Upload -->
     <ion-item lines="none" class="form-item">
-      <ion-label position="stacked">Upload Photo</ion-label>
+      <ion-label position="stacked">Foto</ion-label>
       <input
         type="file"
         accept="image/*"
@@ -44,7 +44,7 @@
         #fileInput
       />
       <ion-button expand="block" color="medium" (click)="fileInput.click()">
-        Choose Photo
+        Selecciona una foto 
       </ion-button>
     </ion-item>
 
@@ -53,7 +53,7 @@
       <ion-avatar class="photo-preview">
         <img [src]="photoPreview" alt="User Photo Preview" />
       </ion-avatar>
-      <p>Photo Preview</p>
+      <p>Preview</p>
     </div>
 
     <!-- Gym ID (Hidden Field) -->
@@ -67,7 +67,7 @@
       class="save-button"
       [disabled]="!userForm.valid"
     >
-      Save
+      Agrega
     </ion-button>
   </form>
 </ion-content>

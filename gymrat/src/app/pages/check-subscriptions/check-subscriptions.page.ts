@@ -13,7 +13,7 @@ export class CheckSubscriptionsPage {
   userFound: boolean = false; // Flag to check if user is found
   checked: boolean = false; // Flag to indicate a check was performed
   entries: any[] = []
-  
+  gymId = ""
   currentDateTime: string = "";
 
   constructor(private gymService:GymService, private auth:AuthService) {}
@@ -21,7 +21,7 @@ export class CheckSubscriptionsPage {
   imageSrc: string | undefined;
 
   reloadEntries(){
-    this.gymService.getEntriesFromToday().subscribe(entries=>{
+    this.gymService.getEntriesFromToday(this.gymId).subscribe(entries=>{
 
       
 
@@ -33,15 +33,20 @@ export class CheckSubscriptionsPage {
   }
 
   ngOnInit(){
-
     var data = this.auth.getGymData()
-
+    this.gymId = data.gym_id.toString()
     this.reloadEntries()
 
     this.updateDateTime();
     setInterval(() => {
       this.updateDateTime();
     }, 1000);
+    try {
+      this.imageSrc = this.gymService.bufferToBase64(data.image['data']);    
+
+    } catch (error) {
+      
+    }
   }
 
 

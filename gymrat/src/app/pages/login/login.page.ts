@@ -29,11 +29,12 @@ export class LoginPage {
         this.auth.login(response["access_token"])
         
         this.auth.setVariables({
-          userId: response.id,
+          userId: response.userId,
           email: response.email,
           image: response.image,
           gym_name: response.gym_name,  
           gym_id: response.gym_id, 
+          
         })
         this.router.navigate(['/'])
 

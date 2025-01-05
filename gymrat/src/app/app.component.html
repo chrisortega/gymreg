@@ -33,6 +33,11 @@
         Ver Usuarios
       </ion-tab-button>
 
+      <ion-tab-button *ngIf="checkLoginStatus()" href="gymadmin"  >
+        <ion-icon  name="people"></ion-icon>
+        Admin Gym
+      </ion-tab-button>
+
     </ion-tab-bar>
   </ion-tabs>
 </ion-app>

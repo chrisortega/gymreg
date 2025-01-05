@@ -1,0 +1,19 @@
+.verification-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .verification-box {
+    text-align: center;
+    font-size: 1.5rem;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .verification-box:focus {
+    border-color: #3880ff;
+    box-shadow: 0 0 5px #3880ff;
+  }
+  

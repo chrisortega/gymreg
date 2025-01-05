@@ -42,17 +42,17 @@
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Profile Image</ion-label>
+      <ion-label position="stacked">Imagen de perfil</ion-label>
       <input 
         type="file" 
         (change)="onFileSelected($event)" 
-        accept="image/*" 
+        accept="image/*"        
         required>
       <div *ngIf="imagePreview" class="image-preview">
         <img [src]="imagePreview" alt="Selected Image" />
       </div>
     </ion-item>
 
-    <ion-button color="dark" expand="block" type="submit" [disabled]="!userForm.valid">Save</ion-button>
+    <ion-button color="dark" expand="block" type="submit" [disabled]="!userForm.valid">Guardar</ion-button>
   </form>
 </ion-content>

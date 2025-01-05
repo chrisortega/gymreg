@@ -43,6 +43,10 @@ const routes: Routes = [
     path: 'gym-user-check',
     loadChildren: () => import('./pages/gym-user-check/gym-user-check.module').then( m => m.GymUserCheckPageModule)
   },
+  {
+    path: 'gymadmin',
+    loadChildren: () => import('./pages/gymadmin/gymadmin.module').then( m => m.GymadminPageModule)
+  },
   
 
 
