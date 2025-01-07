@@ -7,9 +7,6 @@
 <ion-content>
 
 
-  <ion-grid>
-    <ion-row>
-      <ion-col>
         <ion-item>
           <ion-datetime
             [(ngModel)]="filterDate"
@@ -19,8 +16,7 @@
             
           ></ion-datetime>
         </ion-item>
-      </ion-col>
-      <ion-col>
+        <ion-grid>
         <ion-row>
           <ion-col><strong>Dia</strong></ion-col>
           <ion-col><strong>Nombre</strong></ion-col>
@@ -28,8 +24,7 @@
         <ion-row *ngFor="let item of filteredData">
           <ion-col>{{ item.day }}</ion-col>
           <ion-col>{{ item.name }}</ion-col>
-      </ion-row>
-    </ion-col>
-    </ion-row>
+        </ion-row>
+
   </ion-grid>
 </ion-content>

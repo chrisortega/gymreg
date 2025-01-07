@@ -1,14 +1,18 @@
 
 
-<ion-content class="ion-padding login-page">
-  <div class="logo-container">
+<ion-content [fullscreen]="true">
+  <div style="display: flex; justify-content: center; align-items: center; text-align: center; margin-top: 100px;">
+    <ion-item>
+      <!-- Editable image -->
+      <div *ngIf="imageSrc">
+        <img [src]="'data:image/jpeg;base64,' + imageSrc" class="logo" alt="Stored Image" />
 
-    <div *ngIf="imageSrc; else noImage">
-      <img [src]="'data:image/jpeg;base64,' + imageSrc" class="logo" alt="Stored Image" />
-    </div>
-    <ng-template #noImage>
-      <p></p>
-    </ng-template>
+      </div>
+      <ion-avatar *ngIf="!imageSrc">
+        <img alt="Silhouette of mountains" src="https://ionicframework.com/docs/img/demos/thumbnail.svg" />
+      </ion-avatar>
+    </ion-item>
+
   </div>
 
   <!-- Input Section -->

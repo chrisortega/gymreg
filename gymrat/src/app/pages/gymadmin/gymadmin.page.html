@@ -1,11 +1,7 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>gymadmin</ion-title>
-  </ion-toolbar>
-</ion-header>
+
 
 <ion-content [fullscreen]="true">
-  <div style="display: flex; justify-content: center; align-items: center; text-align: center;">
+  
     <ion-item>
       <!-- Editable image -->
       <div *ngIf="imageSrc">
@@ -27,7 +23,7 @@
         <img [src]="imagePreview" alt="Selected Image" />
       </div>
     </ion-item>
-  </div>
+
 
     <form (ngSubmit)="saveData()" #userForm="ngForm">
 
@@ -45,9 +41,7 @@
   </form>
 
   <ion-item>
-     <h1>Cambio de contraseña</h1>
-    <ion-label position="stacked">Contraseña:</ion-label>
-    <ion-input [(ngModel)]="gym_data.password" type="password" placeholder="Enter Password"></ion-input>
+     <h6>Cambio de contraseña</h6>
     <ion-button id="open-modal" expand="block">Iniciar proceso de reinicio de contraseña</ion-button>
 
     
@@ -78,23 +72,28 @@
           ></ion-input>          
         </ion-item>
 
-          <ion-item>
-            <ion-input
-              label="nueva contraseña"
-              labelPlacement="stacked"
-              type="password"
-              [(ngModel)]="newpassword"
-            ></ion-input>
-          </ion-item>
-
-          <ion-item>
-            <ion-input
-            label="cnfirma contraseña"
+        <ion-item>
+          <ion-input
+            label="Nueva Contraseña"
+            labelPlacement="stacked"
+            type="password"
+            [(ngModel)]="newpassword"
+            (ngModelChange)="validateNewPassword()"
+          ></ion-input>
+        </ion-item>
+        <ion-note *ngIf="passwordError" color="danger">{{ passwordError }}</ion-note>
+        
+        <ion-item>
+          <ion-input
+            label="Confirma Contraseña"
             labelPlacement="stacked"
             type="password"
             [(ngModel)]="confirmnewpassword"
+            (ngModelChange)="validateConfirmPassword()"
           ></ion-input>
         </ion-item>
+        <ion-note *ngIf="confirmError" color="danger">{{ confirmError }}</ion-note>
+        
 
         <ion-item *ngIf="isCodeEntryVisible">
           <ion-row class="verification-container">
@@ -143,7 +142,7 @@
           Generar codigo de verificacion
         </ion-button>
 
-        <ion-button *ngIf="isCodeEntryVisible" expand="block" (click)="reset_password()" style="margin: 20px;" color="dark">
+        <ion-button   *ngIf="isCodeEntryVisible && confirmError===null " expand="block" (click)="reset_password()" style="margin: 20px;" color="dark">
           Reiniciar contraseña
         </ion-button>
 

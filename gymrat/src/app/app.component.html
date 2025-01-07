@@ -12,19 +12,19 @@
         Ingresos
       </ion-tab-button>
       <ion-tab-button *ngIf="!checkLoginStatus()" href="login">
-        <ion-icon name="people"></ion-icon>
+        <ion-icon name="log-in-outline"></ion-icon>
          Acceder
       </ion-tab-button>
       <ion-tab-button *ngIf="checkLoginStatus()" (click)="logout()" >
-        <ion-icon  name="people"></ion-icon>
+        <ion-icon name="log-out-outline"></ion-icon>
         Salir
       </ion-tab-button>
       <ion-tab-button *ngIf="!checkLoginStatus()"  href="gym-user-check"  >
-        <ion-icon  name="people"></ion-icon>
+        <ion-icon name="id-card-outline"></ion-icon>
         Mi Membresia
       </ion-tab-button>
       <ion-tab-button *ngIf="checkLoginStatus()"  href="entries"  >
-        <ion-icon  name="people"></ion-icon>
+        <ion-icon name="list-circle-outline"></ion-icon>
         Ver Entradas
       </ion-tab-button>
 
@@ -34,7 +34,7 @@
       </ion-tab-button>
 
       <ion-tab-button *ngIf="checkLoginStatus()" href="gymadmin"  >
-        <ion-icon  name="people"></ion-icon>
+        <ion-icon name="barbell-outline"></ion-icon>
         Admin Gym
       </ion-tab-button>
 

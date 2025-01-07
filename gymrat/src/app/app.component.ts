@@ -17,6 +17,7 @@ export class AppComponent {
   logout() {
     // Clear login state
     this.auth.logout()
+    
     this.router.navigate(['/login']); // Redirect to login page
   }
 

@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth-service.service';
+import { environment } from 'src/environments/environment';
+
 interface DataItem {
   id: number;
   day: string;
@@ -17,7 +19,7 @@ interface DataItem {
 
 
 export class GymService {
-  private apiUrl = 'http://localhost:3000'; // Replace with your backend URL if hosted elsewhere
+  private apiUrl = environment.gym_api_url; // Replace with your backend URL if hosted elsewhere
   private headers = new HttpHeaders({
     'Content-Type': 'application/json',
     Authorization: `Bearer ${this.auth.getToken()}`,
@@ -27,26 +29,31 @@ export class GymService {
 
   // Get all gyms
   getGyms(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/gyms`);
+    const headers = this.headers
+    return this.http.get(`${this.apiUrl}/gyms`, { headers });
   }
 
   // Get all gyms
   getGym(id:any): Observable<any> {
-    return this.http.get(`${this.apiUrl}/gym/${id}`);
+    const headers = this.headers
+    return this.http.get(`${this.apiUrl}/gym/${id}`, { headers });
   }
 
   // Add a new gym
   addGym(gymName: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/gyms`, { gym_name: gymName });
+    const headers = this.headers
+    return this.http.post(`${this.apiUrl}/gyms`, { gym_name: gymName }, { headers });
   }
 
   // Get all users
   getUsers(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/users`);
+    const headers = this.headers
+    return this.http.get(`${this.apiUrl}/users`, { headers });
   }
   getUsersByGym(): Observable<any> {
+    const headers = this.headers
     var gymId = this.auth.getGymData()["gym_id"]
-    return this.http.get(`${this.apiUrl}/users/gym/${gymId}`);
+    return this.http.get(`${this.apiUrl}/users/gym/${gymId}`, { headers });
   }
   
 
@@ -64,7 +71,8 @@ export class GymService {
 
     // Get all entries from today
     getEntriesFromToday(gymId:string): Observable<any> {
-      return this.http.get(`${this.apiUrl}/entries/today/${gymId}`);
+      const headers = this.headers
+      return this.http.get(`${this.apiUrl}/entries/today/${gymId}`, { headers });
     }
 
   // Add a new entry
@@ -76,13 +84,13 @@ export class GymService {
 
   // Get all users
   getUser(id:string): Observable<any> {
-    const headers = this.headers
-    
+    const headers = this.headers    
     return this.http.get(`${this.apiUrl}/users/${id}`,{headers});
   }
 
   getEntriesByUser(userId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/entries/${userId}`);
+    const headers = this.headers
+    return this.http.get(`${this.apiUrl}/entries/${userId}`, { headers });
   }
 
 
@@ -93,6 +101,7 @@ export class GymService {
     }
 
     updateUserImage(userId: string, base64Image: string): Observable<any> {
+      
       const url = `${this.apiUrl}/update-user-image/${userId}`;
   
       // Extract the MIME type and Base64 content
@@ -119,25 +128,77 @@ export class GymService {
 
 
   login(email:string, password:string): Observable<any> {
+    
     return this.http.post(`${this.apiUrl}/login`, { email: email, password:password })
   }
 
 
   isExpired(expirationDate: string): boolean {    
+    
     const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
     return expirationDate < today; // Check if expiration date is in the past
   }
 
-  bufferToBase64(buffer: ArrayBuffer): string {
+   bufferToBase64(buffer: ArrayBuffer): string {
     const byteArray = new Uint8Array(buffer);
     const base64String = btoa(String.fromCharCode.apply(null, Array.from(byteArray)));
     return base64String;
   }
 
 
-  updateUser(formData: FormData): Observable<any> {
+  
+  formDataToJson(formData: FormData): any {
+    const json: any = {};
+    formData.forEach((value, key) => {
+      // If the value is a File, handle it appropriately (optional)
+
+      if (value instanceof File){
+        json[key] =   this.convertFileToBase64(value);
+      }
+      else {
+        json[key] = value
+      }
+      
+    });
+    return json
+    
+    
+  }
+
+   convertFileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file); // Reads the file as a Data URL (Base64 format)
+  });
+}
+
+
+  updateAdmin(formData: FormData): void {    
+    const headers = this.headers
+    const url = `${this.apiUrl}/update-gym`;
+    var json = this.formDataToJson(formData)
+    json["image"].then((base64File: string) => {
+      json['image'] = base64File
+      return this.http.put(url, json, { headers }).subscribe();
+    })
+  }
+
+  updateUser(formData: FormData): void {
+  
+    const headers = this.headers
     const url = `${this.apiUrl}/update-user`;
-    return this.http.put(url, formData);
+    var json = this.formDataToJson(formData)
+    if ("image" in json){
+      json["image"].then((base64File: string) => {
+        json['image'] = base64File
+         this.http.post(url, json, { headers }).subscribe();
+      })
+    }
+    
+    this.http.post(url, json, { headers }).subscribe();
+
   }
  
   send_verification_codw(): Observable<any> {
@@ -154,10 +215,7 @@ export class GymService {
     return this.http.post(`${this.apiUrl}/verify-code`, { email: email, id:id, code:code, newpassword:newpassword }, { headers })
   }
 
-  updateAdmin(formData: FormData): Observable<any> {    
-    const url = `${this.apiUrl}/update-gym`;
-    return this.http.put(url, formData);
-  }
+
 
 
 

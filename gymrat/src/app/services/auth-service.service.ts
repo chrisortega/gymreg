@@ -8,19 +8,24 @@ import { GYMDATA } from '../models/gymdata.interface';
 
 export class AuthService {
   login(token: string): Boolean {
+    localStorage.clear()  
     localStorage.setItem('userToken', token);
     return true
   }
 
   setVariables(response: {}){
+    
     localStorage.setItem('gym_data', JSON.stringify(response));
     return true
   }
 
-  logout() {
+  clear(){
+    localStorage.clear()
+  }
+  logout() {    
+    localStorage.clear()    
     localStorage.removeItem('gym_data');
-    localStorage.removeItem('userToken');
-    
+    localStorage.removeItem('userToken'); 
   }
 
   isLoggedIn(): boolean {

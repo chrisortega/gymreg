@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { GymService } from 'src/app/services/gym.service';
 import { Storage } from '@ionic/storage';
+import { GymadminPage } from '../gymadmin/gymadmin.page';
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
@@ -21,11 +22,14 @@ export class LoginPage {
 
 
   onLogin() {
+
     this.gymService.login(this.email, this.password).subscribe({
 
       next: (response) => {
         // Handle successful response
         
+        this.auth.logout()
+        this.auth.clear()
         this.auth.login(response["access_token"])
         
         this.auth.setVariables({
@@ -36,7 +40,9 @@ export class LoginPage {
           gym_id: response.gym_id, 
           
         })
-        this.router.navigate(['/'])
+
+
+        window.location.replace('/gymadmin')
 
       },
       error: (error) => {

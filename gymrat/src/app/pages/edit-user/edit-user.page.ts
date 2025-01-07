@@ -74,14 +74,7 @@ export class EditUserPage {
       formData.append('image', this.selectedImage);
     }
 
-    this.userService.updateUser(formData).subscribe({
-      next: () => {
-        console.log('User updated successfully');
-      },
-      error: (err) => {
-        console.error('Error updating user:', err);
-      },
-    });
+    this.userService.updateUser(formData)
   }
 }
 
