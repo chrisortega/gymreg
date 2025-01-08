@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth-service.service';
+import { environment } from 'src/environments/environment.prod';
 
 
 interface DataItem {
@@ -19,7 +20,7 @@ interface DataItem {
 
 
 export class GymService {
-  private apiUrl = "https://aqueous-refuge-56427-3673ea3caec6.herokuapp.com/login"; // Replace with your backend URL if hosted elsewhere
+  private apiUrl = environment.gym_api_url; // Replace with your backend URL if hosted elsewhere
   private headers = new HttpHeaders({
     'Content-Type': 'application/json',
     Authorization: `Bearer ${this.auth.getToken()}`,
