@@ -2,9 +2,10 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+//https://www.youtube.com/watch?v=JuYZ2xdHw3o&ab_channel=Fazt
 export const environment = {
   production: false,
-  gym_api_url : "http://localhost:3000"
+  gym_api_url : "https://aqueous-refuge-56427-3673ea3caec6.herokuapp.com"
 };
 
 /*
